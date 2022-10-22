@@ -10,18 +10,31 @@
          end
 
 
+			
+//=================
+//=================
+//=================
+// MODULE Start
+//=================
+//=================
+//=================
+//=================
 module traffic_light (
     input   logic Clock,
-    input   logic Reset,
+    input   logic Reset_N,
+	 output	logic LED10,
+	 output	logic LED9,
+	 output	logic LED8,
     output  logic Red,
     output  logic Yellow,
     output  logic Green
 );
 
-localparam TIME_RED           = 3;
-localparam TIME_GREEN         = 3;
-localparam TIME_YELLOW        = 3;
-localparam TIME_RED_YELLOW    = 3;
+
+localparam TIME_RED           = 30_000_000;
+localparam TIME_GREEN         = 30_000_000;
+localparam TIME_YELLOW        = 30_000_000;
+localparam TIME_RED_YELLOW    = 30_000_000;
 
 typedef enum logic [1:0] { 
     S_RED           = 2'b00,
@@ -31,11 +44,18 @@ typedef enum logic [1:0] {
 } t_state;
 
 
-logic [9:0] Counter;
-logic [9:0] NextCounter;
+logic [31:0] Counter;
+logic [31:0] NextCounter;
 logic       RstCount;
 t_state     State;
 t_state     NextState;
+
+logic Reset;
+assign Reset = ~Reset_N;
+assign LED10 = Reset;
+assign LED9 = Reset_N;
+assign LED8 = Counter[10];
+
 
 `RSTD_DFF(State,   NextState,   Clock, Reset, S_RED)
 `RST_DFF(Counter, NextCounter, Clock, Reset || RstCount)
