@@ -42,12 +42,9 @@ module grid (
     output   logic         Draw
 );
 
-`undef VERY_SMALL_GRID
-`undef SMALL_GRID
-`undef BIG_GRID
-`define VERY_SMALL_GRID 
+//`define VERY_SMALL_GRID 
 //`define SMALL_GRID 
-//`define BIG_GRID 
+`define BIG_GRID 
 
 localparam BASE_WAIT_TIME = 'h4_0000;
 
@@ -85,7 +82,7 @@ assign reset = ~resetN;
 
 
 
-assign draw_line = (pxl_x[GRID_MSB:0]==4'b0) || (pxl_y[GRID_MSB:0]==4'b0);
+assign draw_line = (pxl_x[GRID_MSB:0]=='0) || (pxl_y[GRID_MSB:0]=='0);
 assign Draw = 1'b1;
 assign Red  = draw_line  ? 4'h0     : 
               set_cursor ? 4'hf     :
@@ -131,10 +128,10 @@ always_comb begin
                     //==================
                     // Simply Kill
                     //==================
-                    if(SW[9] == 0)  begin
+                    if(SW[9] == 1)  begin
                         count = 0;
                     end 
-                    if(SW[9] == 1) begin      
+                    if(SW[9] == 0) begin      
                         //=================================
                         //========= Wrap Around ===========
                         //=================================
@@ -290,7 +287,8 @@ always_comb begin
         next_alive[12] = {O, O, O, O, O, O, O, O, O, O, O, X, O, O, X, O, X, O, O, O};
         next_alive[13] = {O, O, O, O, O, O, O, O, O, O, O, X, O, O, X, O, X, X, X, O};
         next_alive[14] = {O, O, O, O, O, O, O, O, O, O, O, X, O, O, X, O, X, O, O, O};
-    `elsif VERY_SMALL_GRID// 1  2  3  4  5  6  7  8  9
+    `endif
+    `ifdef VERY_SMALL_GRID// 1  2  3  4  5  6  7  8  9
     if(SW[0]) begin
         next_alive[1]  = {O, O, X, O, O, O, O, O, O, O};
         next_alive[2]  = {O, O, O, X, O, O, O, O, O, O};
@@ -308,7 +306,9 @@ always_comb begin
         next_alive[6]  = {O, X, O, X, X, X, X, O, X, O};
         next_alive[7]  = {O, O, O, O, O, O, O, O, O, O};
     end
-    `elsif BIG_GRID   //  0 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
+    `endif
+    `ifdef BIG_GRID   //  0 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
+    if(SW[1:0] == 2'b00) begin
         next_alive[1]  = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
         next_alive[2]  = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
         next_alive[3]  = {O, O, O, O, O, X, X, X, O, O, O, X, O, O, O, X, O, O, O, X, O, X, X, X, X, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
@@ -338,12 +338,103 @@ always_comb begin
         next_alive[27] = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
         next_alive[28] = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
         next_alive[29] = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
+    end else if(SW[1:0] == 2'b01) begin
+        next_alive[1]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[2]  = {O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O};
+        next_alive[3]  = {O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O};
+        next_alive[4]  = {O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[5]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[6]  = {O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[7]  = {O,O,O,O,O,O,O,X,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[8]  = {O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[9]  = {O,O,O,O,O,O,O,X,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[10] = {O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[11] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[12] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[13] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[14] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[15] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[16] = {O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[17] = {O,O,O,O,O,O,O,O,O,O,X,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[18] = {O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O};
+        next_alive[19] = {O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O};
+        next_alive[20] = {O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O};
+        next_alive[21] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[22] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[23] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[24] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[25] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[26] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[27] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[28] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[29] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+    end else if(SW[1:0] == 2'b10) begin
+        next_alive[1]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[2]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[3]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[4]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[5]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[6]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[7]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[8]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[9]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[10] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[11] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,X,O,X,X,O,X,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[12] = {O,O,O,O,O,O,O,O,O,O,O,X,X,X,X,O,O,X,X,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[13] = {O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,X,O,O,O,X,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[14] = {O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[15] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[16] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[17] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[18] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[19] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[20] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[21] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[22] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[23] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[24] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[25] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[26] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[27] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[28] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[29] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+    end else if(SW[1:0] == 2'b11) begin
+        next_alive[1]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[2]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[3]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[4]  = {O,O,O,O,X,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[5]  = {O,O,O,O,O,X,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O};
+        next_alive[6]  = {O,O,O,X,X,X,O,O,O,O,O,O,X,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O};
+        next_alive[7]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,X,O,O,O,O,O,O,O};
+        next_alive[8]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[9]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[10] = {O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[11] = {O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[12] = {O,O,O,O,O,O,O,O,O,O,X,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[13] = {O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[14] = {O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[15] = {O,O,O,X,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[16] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O};
+        next_alive[17] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,X,O,O,O,O,O,O,O,O,O,O};
+        next_alive[18] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[19] = {O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[20] = {O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,X,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[21] = {O,O,O,O,O,O,O,O,O,X,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[22] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[23] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[24] = {O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O};
+        next_alive[25] = {O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,O,O,O,O,O,O,O,O};
+        next_alive[26] = {O,O,O,O,O,X,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,X,O,O,O,O,O,O,O,O};
+        next_alive[27] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[28] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+        next_alive[29] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
+    end//SW[1:0] == 2'b10
     `endif
-    end
+    end //reset
 
 	if(A)  next_alive[y_pos][x_pos] = 1'b1;
 	if(B)  next_alive[y_pos][x_pos] = 1'b0;
-end
+end //always_comb
 
 
 assign shift_reset[0] = reset;
@@ -361,7 +452,7 @@ assign reset_count = (cycle_count > (BASE_WAIT_TIME>>Wheel[11:8]));
 //==============================
 // Count Generations
 //==============================
-`EN_RST_DFF(GenCount, GenCount + 30'h1, clk, reset_count, reset)
+`EN_RST_DFF(GenCount, GenCount + 16'h1, clk, reset_count, reset)
 
 //=================
 // Move cursor using joystick
@@ -376,17 +467,22 @@ assign y_next_pos = Up    && (y_pos != '0     ) ? pre_y_pos - 5'h1 :
 `RST_DFF(pre_x_pos, x_next_pos , clk, (reset))
 `RST_DFF(pre_y_pos, y_next_pos , clk, (reset))
 
-assign x_pos = pre_x_pos[26:21];
-assign y_pos = pre_y_pos[25:21];
+assign x_pos = pre_x_pos[17:12];
+assign y_pos = pre_y_pos[16:12];
 
 always_comb begin
     cursor = '0;
     cursor[y_pos][x_pos]  = 1'b1;
-
-
-
-    //test Wheel
-    cursor[0][Wheel[11:8]] = 1'b1;
+    if(SW[9]==1) begin
+        for(int row = 0; row<ROW_MSB+1; row++) begin
+            cursor[row][     0 ] = 1'b1;
+            cursor[row][COL_MSB] = 1'b1;
+        end
+        for(int col = 0; col<COL_MSB+1; col++) begin
+            cursor[   0   ][col] = 1'b1;
+            cursor[ROW_MSB][col] = 1'b1;
+        end
+    end
 end
 
 
