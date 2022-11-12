@@ -1,0 +1,120 @@
+
+
+
+
+`define  DFF(q,i,clk)              \
+         always_ff @(posedge clk)  \
+            q<=i;
+
+`define  EN_DFF(q,i,clk,en)        \
+         always_ff @(posedge clk)  \
+            if(en) q<=i;
+
+`define  RST_DFF(q,i,clk,rst)           \
+         always_ff @(posedge clk) begin \
+            if (rst) q <='0;            \
+            else     q <= i;            \
+         end
+
+`define  EN_RST_DFF(q,i,clk,en,rst)     \
+         always_ff @(posedge clk)       \
+            if (rst)    q <='0;         \
+            else if(en) q <= i;
+
+
+				
+module grid (
+	input		logic 			clk,
+	input		logic 			resetN,
+	input		logic [31:0]	pxl_x,
+	input		logic [31:0]	pxl_y,
+	input 	logic [11:0]	Wheel,
+	output	logic [3:0]		Red,
+	output	logic [3:0]		Green,
+	output	logic [3:0]		Blue,
+	output	logic 			Draw
+);
+
+
+localparam base_waite_time = 'h800_0000;
+localparam ROW_MSB = 10;//59;
+localparam COL_MSB = 10;//79;
+
+logic 					draw_line;
+logic [ROW_MSB:0] [COL_MSB:0] 	next_alive;
+logic [ROW_MSB:0] [COL_MSB:0] 	alive     ;
+logic [ROW_MSB:0] [COL_MSB:0] 	reset_alive;
+
+logic [3:0]				set_cell	;
+
+
+
+assign draw_line = (pxl_x[3:0]==4'b0) || (pxl_y[3:0]==4'b0);
+assign Draw  = 1'b1;
+assign Red	 = draw_line ? 4'h0 : set_cell ;
+assign Green = draw_line ? 4'h0 : set_cell ;
+assign Blue	 = draw_line ? 4'h0 : set_cell ;
+
+assign set_cell = {4{!alive[pxl_y[31:4]][pxl_x[31:4]]}};
+
+
+
+logic [29:0] 	cycle_count;
+logic [29:0] 	next_cycle_count;
+logic 			reset_count;
+logic [COL_MSB:0] pos;
+logic [COL_MSB:0] next_pos;
+logic 		 enable_gen;
+assign reset_count = (cycle_count > (base_waite_time>>Wheel[11:8]));
+assign next_cycle_count = cycle_count + 30'h1;
+`RST_DFF(cycle_count, next_cycle_count, clk, (~resetN || reset_count))
+
+assign next_pos = pos + 1;
+`EN_RST_DFF(pos, next_pos, clk, (cycle_count=='0) , (~resetN))
+
+
+
+int count;
+always_comb begin
+	next_alive = '0;
+//for(int row = 1; row<ROW_MSB-1; row++) begin
+//	for(int col = 1; col<COL_MSB-1; col++) begin
+//		count = 	alive[row-1][col-1] +// top left
+//					alive[row-1][col  ] +// top 
+//					alive[row-1][col+1] +// top right
+//					alive[row  ][col-1] +// left
+//					alive[row  ][col+1] +// right
+//					alive[row+1][col-1] +// bottom left
+//					alive[row+1][col  ] +// bottom
+//					alive[row+1][col+1]; // bottom right
+//		if(alive[row][col]) begin
+//			next_alive[row][col] = (count == 2) ? 1'b1 :
+//										  (count == 3) ? 1'b1 :
+//															  1'b0 ;
+//		end else begin //cell was dead
+//			next_alive[row][col] = (count == 3) ? 1'b1 : // new cell born
+//															  1'b0 ; // do nothing
+//		end//if else
+//	end//for col
+//end//for row
+
+	next_alive[pos]  [10] = 1'b1;
+	next_alive[pos+1][10] = 1'b1;
+	next_alive[pos+2][10] = 1'b1;
+	next_alive[pos+3][10] = 1'b1;
+	next_alive[pos+4][10] = 1'b1;
+	
+	//test Wheel
+	next_alive[Wheel[11:8]][Wheel[11:8]] = 1'b1;
+	
+	//test count
+	next_alive[10][cycle_count[29:23]] = 1'b1;
+end
+
+
+
+assign enable_gen = (cycle_count=='0);
+`EN_DFF(alive, next_alive, clk, enable_gen)
+
+
+endmodule 
