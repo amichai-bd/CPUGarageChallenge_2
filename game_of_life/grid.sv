@@ -124,25 +124,150 @@ always_comb begin
 	if(enable_gen && (Wheel[11:8] != '0) ) begin
         for(int row = 0; row<ROW_MSB+1; row++) begin
             for(int col = 0; col<COL_MSB+1; col++) begin
-       		    if((row == '0 )||(col == 0) || (row == ROW_MSB) || (col == COL_MSB)) begin
-       		        next_alive[row][col] = 1'b0;
-				end else begin 
-                	count =     alive[row-1][col-1] +// top left
-                	            alive[row-1][col  ] +// top 
-                	            alive[row-1][col+1] +// top right
-                	            alive[row  ][col-1] +// left
-                	            alive[row  ][col+1] +// right
-                	            alive[row+1][col-1] +// bottom left
-                	            alive[row+1][col  ] +// bottom
-                	            alive[row+1][col+1]; // bottom right
-                	if(alive[row][col]) begin
-                	    next_alive[row][col] = (count == 2) ? 1'b1 : // Cell dont Change
-                	                           (count == 3) ? 1'b1 : // Cell Dont Change
-                	                                          1'b0 ; // Kill Cell
-                	end else begin //cell was dead
-                	    next_alive[row][col] = (count == 3) ? 1'b1 : // new cell born
-                	                                          1'b0 ; // do nothing
-                	end//if else
+                //===================================================
+                //  Incase of Boundry - see if we want to wrap around or simply kill
+                //===================================================
+       		    if((row == 0 ) || (col == 0) || (row == ROW_MSB ) || (col == COL_MSB) ) begin
+                    //==================
+                    // Simply Kill
+                    //==================
+                    if(SW[9] == 0)  begin
+                        count = 0;
+                    end 
+                    if(SW[9] == 1) begin      
+                        //=================================
+                        //========= Wrap Around ===========
+                        //=================================
+                        //================
+                        //TOP LEFT CORNER
+                        //================
+       		            if((row == 0 ) && (col == 0)) begin
+                        	count =     alive[ROW_MSB][COL_MSB] +// top left
+                        	            alive[ROW_MSB][0      ] +// top 
+                        	            alive[ROW_MSB][1      ] +// top right
+                        	            alive[0      ][COL_MSB] +// left
+                        	            alive[0      ][1      ] +// right
+                        	            alive[1      ][COL_MSB] +// bottom left
+                        	            alive[1      ][0      ] +// bottom
+                        	            alive[1      ][1      ]; // bottom right
+                        end else 
+                        //================
+                        //TOP RIGHT CORNER
+                        //================
+                        if((row == 0 ) && (col == COL_MSB)) begin           
+                        	count =     alive[ROW_MSB][col-1] +// top left
+                        	            alive[ROW_MSB][col  ] +// top 
+                        	            alive[ROW_MSB][0    ] +// top right
+                        	            alive[      0][col-1] +// left
+                        	            alive[      0][0    ] +// right
+                        	            alive[      1][col-1] +// bottom left
+                        	            alive[      1][col  ] +// bottom
+                        	            alive[      1][0    ] ; // bottom right
+                        end else 
+                        //================
+                        //BOTTOM LEFT CORNER
+                        //================
+       		            if( (row == ROW_MSB ) && (col == 0)) begin           
+                        	count =     alive[row-1][COL_MSB] +// top left
+                        	            alive[row-1][col    ] +// top 
+                        	            alive[row-1][col+1  ] +// top right
+                        	            alive[row  ][COL_MSB] +// left
+                        	            alive[row  ][col+1  ] +// right
+                        	            alive[0    ][COL_MSB] +// bottom left
+                        	            alive[0    ][col    ] +// bottom
+                        	            alive[0    ][col+1  ]; // bottom right
+                        end else 
+                        //================
+                        //BOTTOM RIGHT CORNER
+                        //================
+       		            if( (row == ROW_MSB ) && (col == COL_MSB)) begin
+                        	count =     alive[row-1][col-1] +// top left
+                        	            alive[row-1][col  ] +// top 
+                        	            alive[row-1][0    ] +// top right
+                        	            alive[row  ][col-1] +// left
+                        	            alive[row  ][0    ] +// right
+                        	            alive[0    ][col-1] +// bottom left
+                        	            alive[0    ][col  ] +// bottom
+                        	            alive[0    ][0    ]; // bottom right
+                        end else 
+                        //================
+                        //TOP Line
+                        //================
+				        if((row == '0 ))begin 
+                        	count =     alive[ROW_MSB][col-1] +// top left
+                        	            alive[ROW_MSB][col  ] +// top 
+                        	            alive[ROW_MSB][col+1] +// top right
+                        	            alive[row  ][col-1] +// left
+                        	            alive[row  ][col+1] +// right
+                        	            alive[row+1][col-1] +// bottom left
+                        	            alive[row+1][col  ] +// bottom
+                        	            alive[row+1][col+1]; // bottom right
+                        end else 
+                        //================
+                        //Bottom Line
+                        //================
+				        if((row == ROW_MSB ))begin 
+                        	count =     alive[row-1][col-1] +// top left
+                        	            alive[row-1][col  ] +// top 
+                        	            alive[row-1][col+1] +// top right
+                        	            alive[row  ][col-1] +// left
+                        	            alive[row  ][col+1] +// right
+                        	            alive[    0][col-1] +// bottom left
+                        	            alive[    0][col  ] +// bottom
+                        	            alive[    0][col+1]; // bottom right
+                        end else 
+                        //================
+                        //LEFT Line
+                        //================
+				        if((col == '0  ))begin 
+                        	count =     alive[row-1][COL_MSB] +// top left
+                        	            alive[row-1][col  ] +// top 
+                        	            alive[row-1][col+1] +// top right
+                        	            alive[row  ][COL_MSB] +// left
+                        	            alive[row  ][col+1] +// right
+                        	            alive[row+1][COL_MSB] +// bottom left
+                        	            alive[row+1][col  ] +// bottom
+                        	            alive[row+1][col+1]; // bottom right
+                        end else 
+                        //================
+                        //RIGHT Line
+                        //================
+				        if( (col ==  COL_MSB ))begin 
+                        	count =     alive[row-1][col-1] +// top left
+                        	            alive[row-1][col  ] +// top 
+                        	            alive[row-1][    0] +// top right
+                        	            alive[row  ][col-1] +// left
+                        	            alive[row  ][    0] +// right
+                        	            alive[row+1][col-1] +// bottom left
+                        	            alive[row+1][col  ] +// bottom
+                        	            alive[row+1][    0]; // bottom right
+                        end 
+                    end//(SW[9] == 1)
+                end//Boundry Count
+                //==========================
+                // When not Boundry - Regular Cell:
+                //==========================
+                else begin
+                    count = alive[row-1][col-1] +// top left
+                        	alive[row-1][col  ] +// top 
+                        	alive[row-1][col+1] +// top right
+                        	alive[row  ][col-1] +// left
+                        	alive[row  ][col+1] +// right
+                        	alive[row+1][col-1] +// bottom left
+                        	alive[row+1][col  ] +// bottom
+                        	alive[row+1][col+1] ;// bottom right
+                end
+
+                //==================
+                // Reguler Cell that is currently Alive
+                //==================
+                if(alive[row][col]) begin
+                    next_alive[row][col] = (count == 2) ? 1'b1 : // Cell dont Change
+                                           (count == 3) ? 1'b1 : // Cell Dont Change
+                                                          1'b0 ; // Kill Cell
+                end else begin //cell was dead
+                    next_alive[row][col] = (count == 3) ? 1'b1 : // new cell born
+                                                          1'b0 ; // do nothing
                 end//if else
             end//for col
         end//for row
