@@ -76,7 +76,7 @@ logic [0:ROW_MSB] [0:COL_MSB]     cursor;
 logic [3:0]      set_cell;
 logic            set_cursor;
 logic            reset;
-logic [99:0]     shift_reset;
+//logic [99:0]     shift_reset;
 
 assign reset = ~resetN;
 
@@ -270,7 +270,7 @@ always_comb begin
         end//for row
 	end//enable gen
 
-    if(shift_reset[99] || reset) begin
+    if(/*shift_reset[99] ||*/ reset) begin
         next_alive = '0;
     `ifdef SMALL_GRID  //0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
         next_alive[1]  = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
@@ -308,7 +308,7 @@ always_comb begin
     end
     `endif
     `ifdef BIG_GRID   //  0 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-    if(SW[1:0] == 2'b00) begin
+    if(SW[2:0] == 3'b000) begin
         next_alive[1]  = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
         next_alive[2]  = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
         next_alive[3]  = {O, O, O, O, O, X, X, X, O, O, O, X, O, O, O, X, O, O, O, X, O, X, X, X, X, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
@@ -338,7 +338,7 @@ always_comb begin
         next_alive[27] = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
         next_alive[28] = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
         next_alive[29] = {O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O};
-    end else if(SW[1:0] == 2'b01) begin
+    end else if(SW[2:0] == 3'b001) begin
         next_alive[1]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[2]  = {O,O,O,O,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O};
         next_alive[3]  = {O,O,O,X,X,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,X,X,O,O,O,O,O,O,O,O,O};
@@ -368,7 +368,7 @@ always_comb begin
         next_alive[27] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[28] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[29] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
-    end else if(SW[1:0] == 2'b10) begin
+    end else if(SW[2:0] == 3'b010) begin
         next_alive[1]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[2]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[3]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
@@ -398,7 +398,7 @@ always_comb begin
         next_alive[27] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[28] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[29] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
-    end else if(SW[1:0] == 2'b11) begin
+    end else if(SW[2:0] == 3'b011) begin
         next_alive[1]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[2]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[3]  = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
@@ -428,7 +428,9 @@ always_comb begin
         next_alive[27] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[28] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
         next_alive[29] = {O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O,O};
-    end//SW[1:0] == 2'b10
+    end  else if(SW[2] == 1'b1) begin
+        next_alive  = '0;
+	 end
     `endif
     end //reset
 
@@ -437,8 +439,8 @@ always_comb begin
 end //always_comb
 
 
-assign shift_reset[0] = reset;
-`DFF(shift_reset[99:1], shift_reset[98:0], clk)
+//assign shift_reset[0] = reset;
+//`DFF(shift_reset[99:1], shift_reset[98:0], clk)
 
 
 
@@ -452,7 +454,7 @@ assign reset_count = (cycle_count > (BASE_WAIT_TIME>>Wheel[11:8]));
 //==============================
 // Count Generations
 //==============================
-`EN_RST_DFF(GenCount, GenCount + 16'h1, clk, reset_count, reset)
+`EN_RST_DFF(GenCount, GenCount + 16'h1, clk, enable_gen && (Wheel[11:8]!='0), reset)
 
 //=================
 // Move cursor using joystick
@@ -462,10 +464,10 @@ assign x_next_pos = Left  && (x_pos != '0     ) ? pre_x_pos - 5'h1 :
                                                   pre_x_pos;
 assign y_next_pos = Up    && (y_pos != '0     ) ? pre_y_pos - 5'h1 :
                     Down  && (y_pos != ROW_MSB) ? pre_y_pos + 5'h1 :
-                           						  pre_y_pos;
+                           					   	  pre_y_pos;
 
-`RST_DFF(pre_x_pos, x_next_pos , clk, (reset))
-`RST_DFF(pre_y_pos, y_next_pos , clk, (reset))
+`DFF(pre_x_pos, x_next_pos , clk)
+`DFF(pre_y_pos, y_next_pos , clk)
 
 assign x_pos = pre_x_pos[17:12];
 assign y_pos = pre_y_pos[16:12];
